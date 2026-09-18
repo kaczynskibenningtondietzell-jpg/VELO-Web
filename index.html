@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B0F14">
+<title>VELO — Análisis y Entrenamiento de Ajedrez</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♞</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app-root">
+
+  <!-- TOP BAR -->
+  <header id="top-bar">
+    <div id="brand"><span id="brand-mark">♞</span><span id="brand-name">VELO</span></div>
+    <button id="btn-settings" class="icon-btn" aria-label="Ajustes">⚙</button>
+  </header>
+
+  <!-- SCREEN: TABLERO -->
+  <main id="screen-board" class="screen active">
+    <div id="board-top-row">
+      <div id="board-eval-wrap">
+        <div id="board-eval-bar"><div id="board-eval-fill"></div></div>
+        <div id="board-eval-text">0.0</div>
+      </div>
+      <div id="board-wrap">
+        <div id="chessboard" data-board="main"></div>
+        <svg id="arrows-svg-main" class="arrows-svg"></svg>
+        <div id="promo-anchor-main"></div>
+      </div>
+      <div id="board-side-spacer"></div>
+    </div>
+
+    <div id="clocks-row">
+      <div class="clock" id="clock-black"><span class="clock-label">Negras</span><span class="clock-time">—</span></div>
+      <select id="time-control-select">
+        <option value="none">Sin reloj</option>
+        <option value="bullet">Bullet · 1 min</option>
+        <option value="blitz">Blitz · 5 min</option>
+        <option value="rapid">Rápida · 10 min</option>
+        <option value="classical">Clásica · 30 min</option>
+        <option value="custom">Personalizado</option>
+      </select>
+      <input type="number" id="custom-minutes" min="1" max="180" value="15" placeholder="min" style="display:none;">
+      <div class="clock" id="clock-white"><span class="clock-label">Blancas</span><span class="clock-time">—</span></div>
+    </div>
+
+    <div id="coach-panel">
+      <div id="coach-avatar">V</div>
+      <div id="coach-message">Bienvenido a VELO. Toca una pieza para empezar.</div>
+    </div>
+
+    <div id="board-toolbar">
+      <button id="btn-flip" class="tool-btn" title="Girar tablero">⟲</button>
+      <select id="orientation-select" class="tool-select">
+        <option value="white">Blancas</option>
+        <option value="black">Negras</option>
+        <option value="auto">Automático</option>
+      </select>
+      <button id="btn-undo" class="tool-btn" title="Deshacer">↶</button>
+      <button id="btn-redo" class="tool-btn" title="Rehacer">↷</button>
+      <button id="btn-reset" class="tool-btn" title="Reiniciar">⟳</button>
+      <button id="btn-io" class="tool-btn" title="Importar / Exportar">⇄</button>
+    </div>
+
+    <div id="board-move-list-wrap">
+      <div id="board-move-list"></div>
+    </div>
+  </main>
+
+  <!-- SCREEN: ANALISIS -->
+  <main id="screen-analysis" class="screen">
+    <div id="analysis-top-row">
+      <div id="analysis-eval-wrap">
+        <div id="analysis-eval-bar"><div id="analysis-eval-fill"></div></div>
+        <div id="analysis-eval-text">0.0</div>
+      </div>
+      <div id="board-wrap-analysis">
+        <div id="chessboard-analysis" data-board="analysis"></div>
+        <svg id="arrows-svg-analysis" class="arrows-svg"></svg>
+      </div>
+      <div id="board-side-spacer2"></div>
+    </div>
+
+    <div id="analysis-info">
+      <div id="analysis-depth">Profundidad: —</div>
+      <div id="analysis-bestmove">Mejor jugada: —</div>
+      <div id="analysis-pv">Línea principal: —</div>
+    </div>
+
+    <div id="analysis-playback">
+      <button id="analysis-first" class="tool-btn">⏮</button>
+      <button id="analysis-prev" class="tool-btn">◀</button>
+      <button id="analysis-next" class="tool-btn">▶</button>
+      <button id="analysis-last" class="tool-btn">⏭</button>
+      <button id="btn-full-review" class="tool-btn primary">Analizar partida completa</button>
+    </div>
+    <div id="review-progress"></div>
+
+    <div id="analysis-coach-panel">
+      <div id="coach-avatar">V</div>
+      <div id="analysis-coach-text">Juega o importa una partida para analizarla.</div>
+    </div>
+
+    <div id="game-summary"></div>
+
+    <div id="analysis-move-list-wrap">
+      <div id="analysis-move-list"></div>
+    </div>
+  </main>
+
+  <!-- SCREEN: ENTRENAR -->
+  <main id="screen-training" class="screen">
+    <div id="training-setup">
+      <select id="training-color-select">
+        <option value="white">Jugar con Blancas</option>
+        <option value="black">Jugar con Negras</option>
+        <option value="random">Color aleatorio</option>
+      </select>
+      <button id="btn-training-new" class="tool-btn primary">Nueva posición</button>
+    </div>
+
+    <div id="board-top-row-training">
+      <div id="training-eval-wrap">
+        <div id="training-eval-bar"><div id="training-eval-fill"></div></div>
+      </div>
+      <div id="board-wrap-training">
+        <div id="chessboard-training" data-board="training"></div>
+        <svg id="arrows-svg-training" class="arrows-svg"></svg>
+        <div id="promo-anchor-training"></div>
+      </div>
+      <div id="board-side-spacer3"></div>
+    </div>
+
+    <div id="training-status">Elige un color y pulsa "Nueva posición" para empezar a entrenar.</div>
+
+    <div id="training-feedback-panel">
+      <div id="training-badge"></div>
+      <div id="coach-avatar">V</div>
+      <div id="training-coach-text"></div>
+    </div>
+  </main>
+
+  <!-- SCREEN: HISTORIAL -->
+  <main id="screen-history" class="screen">
+    <input type="search" id="history-search" placeholder="Buscar por jugador o jugada…">
+    <div id="history-list"></div>
+  </main>
+
+  <!-- SCREEN: AJUSTES -->
+  <main id="screen-settings" class="screen">
+    <h2 class="settings-title">Ajustes</h2>
+
+    <div class="settings-group">
+      <h3>Tablero</h3>
+      <label class="setting-row">Tema del tablero
+        <select id="set-board-theme">
+          <option value="classic_dark">Clásico verde</option>
+          <option value="ocean">Océano azul</option>
+          <option value="amethyst">Amatista</option>
+          <option value="walnut">Nogal</option>
+        </select>
+      </label>
+      <label class="setting-row">Orientación por defecto
+        <select id="set-orientation">
+          <option value="white">Blancas</option>
+          <option value="black">Negras</option>
+          <option value="auto">Automático</option>
+        </select>
+      </label>
+      <label class="setting-row">Mostrar movimientos legales
+        <input type="checkbox" id="set-show-legal">
+      </label>
+      <label class="setting-row">Mostrar flechas de análisis
+        <input type="checkbox" id="set-show-arrows">
+      </label>
+      <label class="setting-row">Animaciones
+        <input type="checkbox" id="set-animations">
+      </label>
+      <label class="setting-row">Sonido de movimientos
+        <input type="checkbox" id="set-sound">
+      </label>
+      <label class="setting-row">Vibración
+        <input type="checkbox" id="set-vibration">
+      </label>
+    </div>
+
+    <div class="settings-group">
+      <h3>Motor y análisis</h3>
+      <label class="setting-row">Mostrar evaluación
+        <input type="checkbox" id="set-show-eval">
+      </label>
+      <label class="setting-row">Profundidad del motor: <span id="set-engine-depth-val">8</span>
+        <input type="range" id="set-engine-depth" min="3" max="12" step="1">
+      </label>
+      <label class="setting-row">Tiempo máx. de análisis: <span id="set-analysis-time-val">1.8s</span>
+        <input type="range" id="set-analysis-time" min="300" max="5000" step="100">
+      </label>
+    </div>
+
+    <div class="settings-group">
+      <h3>Instructor VELO</h3>
+      <label class="setting-row">Nivel de explicación
+        <select id="set-coach-level">
+          <option value="beginner">Principiante</option>
+          <option value="intermediate">Intermedio</option>
+          <option value="advanced">Avanzado</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="settings-group">
+      <h3>Datos</h3>
+      <button id="btn-clear-history" class="tool-btn danger">Borrar historial local</button>
+    </div>
+
+    <button id="btn-settings-close" class="tool-btn primary" style="width:100%;margin-top:16px;">Cerrar ajustes</button>
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav id="bottom-nav">
+    <button class="nav-btn active" data-screen="board"><span class="nav-icon">♟</span><span class="nav-label">Tablero</span></button>
+    <button class="nav-btn" data-screen="analysis"><span class="nav-icon">📊</span><span class="nav-label">Análisis</span></button>
+    <button class="nav-btn" data-screen="training"><span class="nav-icon">🎯</span><span class="nav-label">Entrenar</span></button>
+    <button class="nav-btn" data-screen="history"><span class="nav-icon">📚</span><span class="nav-label">Historial</span></button>
+  </nav>
+
+  <!-- MODAL: PROMOTION -->
+  <div id="modal-promotion" class="modal hidden">
+    <div class="modal-card">
+      <h3>Elige la pieza</h3>
+      <div id="promotion-choices"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: IMPORT/EXPORT -->
+  <div id="modal-io" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-iotab="pgn">PGN</button>
+        <button class="modal-tab" data-iotab="fen">FEN</button>
+      </div>
+      <textarea id="io-textarea" rows="6" placeholder="Pega aquí un PGN o FEN…"></textarea>
+      <div class="modal-actions">
+        <button id="btn-io-load" class="tool-btn primary">Cargar</button>
+        <button id="btn-io-fill-current" class="tool-btn">Usar posición actual</button>
+        <button id="btn-io-copy" class="tool-btn">Copiar</button>
+        <button id="btn-io-download" class="tool-btn">Descargar</button>
+        <button id="btn-io-close" class="tool-btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="hidden"></div>
+</div>
+
+<script src="js/chess.js"></script>
+<script src="js/pgn.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/instructor.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/analysis.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
